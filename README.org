@@ -1,0 +1,76 @@
+
+* Summary
+  =teuler= is a toy theorem prover, named after a much more
+  accomplished theorem prover.  =teuler= also proceeds in large part
+  by brute force methods, hence it is a toiler of sorts.
+
+  At present, 
+
+* Resolution
+ In this section we build a simple resolver which does resolution of FOL
+ sentences rendered in clause-normal form.  This can be done in three
+ steps:
+
+ - Literal Identification
+ - Unification
+ - Resolution
+
+** Literal Identification
+  Literal Identification is straight-forward: given two clauses, we must
+  determine if one clause is an opposite literal of the other.  We do
+  this by determining if any elements of the cross product of the
+  elements of the clauses are opposite, implemented straight-fowardly in
+  the function literal identification.  Literal identification relies on
+  a helper function opposite? which determines whether one argument is
+  the negated form of the other.
+
+** Unification
+  For unification, we apply the standard unification algorithm
+  described in Norvig and Russell, recursively applying the function
+  unify to the arguments of each clause and carrying along the most
+  general unifier as we go.
+
+** Resolution
+  Finally in the function resolve we attempt to resolve two clauses
+  by unifying them.  If the unification is a success, we apply remove
+  the canceled arguments of the clause, apply the mgu theta to each
+  remaining clause, and return resulting clause, otherwise we signal
+  failure.  The fucntion test-resolve does the same thing more
+  verbosely for the purposes of conforming the test output to project
+  specifications.
+
+* Deduction
+ In this section we build a simple theorem prover which derives
+ theorems from a given knowledge base.  We implement the standard
+ refutation proof procedure by appending the negation of the desired
+ theorem and deriving a contradiction therefrom.
+
+ Until the desired theorem is proven, two clauses are chosen from the
+ knowledge base at random.  Three possibilities present themselves: the
+ first is that the two clauses have been attempted before.  This is
+ tracked with the list =tried= which contains pairs of applied clauses
+ and is available to the clause-picking function pick-two.  Supposing
+ the two clauses are original, two options remain.  Either the clauses
+ cannot be unified, in which case "failure" is returned and the clauses
+ are appended to =tried=, or they can be unified, in which case the
+ resulting clause is appended to the knowledge base as well.
+ Additionally, the relationship between resolvenda and resolvent are
+ tracked by the hash-table =hash= which associates each resolvent with
+ the two resolvenda from which it derived.  If the null clause can be
+ derived, the hash is returned to the function interpret-hash, which
+ interprets the hash to recover the structure of the proof.  Beginning
+ with the null clause, it looks for justification of each key in terms
+ of its value.  The justification for each element of the pair of
+ resolvenda is either its membership in the knowledge base, or the
+ conjunction of the justifications for clause used to derive it itself.
+ Luxuries such as tautology elimination and subsumption are not
+ implemented, although I have implemented the option to
+ prioritize-constants.  This option, which insists that each pair of
+ clauses picked by pick-two contains at least one constant, is
+ occasionally helpful in reasoning about knowledge bases with large
+ sets of general rules when one wants to derive a theorem about a
+ particular case.  In such knowledge bases, knowledge about particulars
+ can ''hide'' among the general rules, allowing the theorem-prover to
+ generate lots of ''abstract theorems'', i.e. theorems involving only
+ variables, without ever introducing the particulars about which one
+ wants to know.  

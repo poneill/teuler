@@ -1,0 +1,4 @@
+#ignore compiled files
+*.fasl
+#always, always, always ignore emacs
+*~
