@@ -11,6 +11,7 @@
 	(t nil)))
 
 (defun resolve (c1 c2)
+  "resolve c1, c2 if possible, else return nil"
   (let* ((opp-pair (car (literal-identification c1 c2))))
     (if opp-pair
 	(let* ((opp1 (first opp-pair))
